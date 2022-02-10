@@ -1,0 +1,56 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+!theme reddress-lightblue
+skinparam MaxMessageSize 150
+hide empty description
+!function $transition($transition, $params, $color)
+!local $color_tag = "<color:" + $color + ">"
+!local $light_color_tag = "<color:" + %reverse_hsluv_color($color) + ">"
+!return $color_tag + $transition + " (" + $light_color_tag + $params + $color_tag + ")"
+!endfunction
+
+state AskingForCard : players\ngame cards
+state HandingOverCard : players\ngame cards
+state ParadoxCreated : reason
+state PlayerWon : player
+state Error #darkred : error type
+
+'transitions
+!$AskedForCard = $transition("Player asked for card", "asker, asked, card", "green")
+!$CardHandedOver = $transition("Card was handed over", "giver, reciever, card", "blue")
+!$CardNotHandedOver = $transition("Card was not handed over", "giver, card", "green")
+
+[*] --> AskingForCard : Start game with player 1
+
+AskingForCard -r-> HandingOverCard : $AskedForCard
+AskingForCard -d-> ParadoxCreated : $AskedForCard
+note on link
+    Player cannot have card of class
+end note
+AskingForCard -[dashed]-> Error
+
+HandingOverCard -l-> AskingForCard : $CardHandedOver
+HandingOverCard -l-> AskingForCard : $CardNotHandedOver
+HandingOverCard --> ParadoxCreated : $CardHandedOver
+note on link
+    Asked player cannot have card
+end note
+HandingOverCard --> ParadoxCreated : $CardNotHandedOver
+note on link
+    Asked player must have card
+end note
+HandingOverCard --> PlayerWon : $CardHandedOver
+note on link
+Asking Player got 4th card of class
+end note
+HandingOverCard -[dashed]-> Error
+
+ParadoxCreated -[dashed]-> Error
+
+PlayerWon -[dashed]-> Error
+
+'PlayerWon -> AskingForCard : Player leaves game, winning cards are taken out and rest of player's cards are randomly assigned to other players
+
+}
+@enduml
