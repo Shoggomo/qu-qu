@@ -1,5 +1,9 @@
-mod card;
+extern crate core;
+
+pub mod card;
 mod player;
 pub mod game;
-mod factssolver;
-mod fact;
+mod paradox_checks;
+mod actions;
+
+

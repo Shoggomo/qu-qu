@@ -1,28 +1,44 @@
-use crate::card::Class::Undefined;
+use std::fmt::{Display, Formatter};
 
-#[derive(Eq, PartialEq)]
-pub enum Class {
-    Defined(str),
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
+pub enum Class<'a> {
+    Defined(&'a str),
     Undefined,
 }
 
-#[derive(Eq, PartialEq)]
-pub enum Expression {
-    Defined(str),
+impl<'a> Display for Class<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Class::Defined(class) => write!(class),
+            Class::Undefined => write!("Undefined"),
+        }
+    }
+}
+
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub enum Expression<'a> {
+    Defined(&'a str),
     Undefined,
 }
 
-#[derive(Eq, PartialEq)]
-pub struct Card {
-    class: Class,
-    expression: Expression,
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct Card<'a> {
+    class: Class<'a>,
+    expression: Expression<'a>,
 }
 
-impl Card {
-    pub fn new() -> Card {
+impl<'a> Card<'a> {
+    pub fn new() -> Self {
         Card {
             class: Class::Undefined,
             expression: Expression::Undefined,
+        }
+    }
+
+    pub fn new_defined(class: &'a str, expression: &'a str) -> Card<'a> {
+        Card {
+            class: Class::Defined(class),
+            expression: Expression::Defined(expression),
         }
     }
 
@@ -34,11 +50,16 @@ impl Card {
         &self.expression
     }
 
-    pub fn set_class(&mut self, class: Class) {
+    pub fn set_class(&mut self, class: Class<'a>) {
         self.class = class;
     }
 
-    pub fn set_expression(&mut self, expression: Expression) {
+    pub fn set_expression(&mut self, expression: Expression<'a>) {
         self.expression = expression;
+    }
+
+    pub fn copy_card_values(&mut self, card: &'a Card) {
+        self.set_class(card.class.clone());
+        self.set_expression(card.expression.clone());
     }
 }
